@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ScanQrCode extends StatefulWidget {
   const ScanQrCode({super.key});
@@ -27,6 +28,16 @@ class _ScanQrCodeState extends State<ScanQrCode> {
     }
   }
 
+  void _launchURL() async {
+    final uri = Uri.parse(qrResult);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      print('Could not launch $qrResult');
+      throw 'Could not launch $qrResult';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,6 +56,12 @@ class _ScanQrCodeState extends State<ScanQrCode> {
               onPressed: scanQr,
               child: Text('Scan Code'),
             ),
+            if (qrResult != 'Scanned Data will appear here' &&
+                qrResult != 'Failed to read QR Code')
+              ElevatedButton(
+                onPressed: _launchURL,
+                child: Text('Open Link'),
+              ),
           ],
         ),
       ),
